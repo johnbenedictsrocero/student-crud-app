@@ -6,7 +6,7 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f6f8;
+    background-color: #659bd1;
     color: #333;
     padding: 30px;
 }
@@ -66,7 +66,7 @@ button {
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
-    background-color: #3498db;
+    background-color: #bde475;
     color: white;
     margin-right: 5px;
 }
