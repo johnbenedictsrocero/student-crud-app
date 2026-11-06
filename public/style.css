@@ -1,4 +1,4 @@
-* {
+*{
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -6,7 +6,7 @@
 
 body {
     font-family: Arial, sans-serif;
-    background-color: #659bd1;
+    background-color: #f1e7b6;
     color: #333;
     padding: 30px;
 }
@@ -19,7 +19,7 @@ body {
 h1 {
     text-align: center;
     margin-bottom: 30px;
-    color: #2c3e50;
+    color: #000000;
 }
 
 h2 {
@@ -47,7 +47,7 @@ h2 {
 }
 
 .form-group input {
-    width: 100%;
+    width: 50%;
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -66,7 +66,7 @@ button {
     border-radius: 5px;
     cursor: pointer;
     font-size: 14px;
-    background-color: #bde475;
+    background-color: #50b8f5;
     color: white;
     margin-right: 5px;
 }
@@ -122,6 +122,43 @@ tr:hover {
 
 .delete-button {
     background-color: #e74c3c;
+}
+
+/* --- Full Size Image Modal Popup --- */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.image-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Container for side-by-side fields */
+.form-row {
+    display: flex;
+    gap: 15px; /* Space between the two text boxes */
+}
+
+/* Make each form group inside the row share the space equally */
+.form-row .form-group {
+    flex: 1;
+}
+
+/* Make sure the text boxes fill their container width */
+.form-row .form-group input {
+    width: 100%;
 }
 
 /* Mobile */

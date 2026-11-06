@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management System</title>
+    <title>Lost and Found System</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,49 +12,63 @@
 
     <div class="container">
 
-        <h1>Student Management System</h1>
+        <h1>Lost and Found System</h1>
 
-        <!-- Student Form -->
+        <!-- Form Container -->
         <div class="form-container">
 
-            <h2 id="formTitle">Add Student</h2>
+            <h2 id="formTitle">Post Lost Item</h2>
 
-            <form id="studentForm">
+            <form id="itemForm">
 
-                <input type="hidden" id="studentMongoId">
+                <input type="hidden" id="itemMongoId">
 
+            <div class="form-row">
                 <div class="form-group">
-                    <label for="studentId">Student ID</label>
+                    <label for="itemname">Item Name</label>
                     <input
                         type="text"
-                        id="studentId"
-                        placeholder="Enter Student ID"
+                        id="itemname"
+                        placeholder="Enter text..."
                         required
                     >
                 </div>
 
                 <div class="form-group">
-                    <label for="name">Name</label>
+                    <label for="name">Name of Finder</label>
                     <input
                         type="text"
                         id="name"
-                        placeholder="Enter Student Name"
+                        placeholder="Enter text..."
                         required
                     >
                 </div>
-
+            </div>
+            
+            <div class="form-row">
                 <div class="form-group">
-                    <label for="program">Program</label>
+                    <label for="contact">Contact Info</label>
                     <input
                         type="text"
-                        id="program"
-                        placeholder="Enter Program"
+                        id="contact"
+                        placeholder="Enter text..."
                         required
                     >
                 </div>
 
+                 <div class="form-group">
+                    <label for="image">Image</label>
+                    <input 
+                        type="file" 
+                        id="image" 
+                        accept="image/*"
+                        required
+                    >
+                </div>
+            </div>
+
                 <button type="submit" id="submitButton">
-                    Add Student
+                    Submit
                 </button>
 
                 <button
@@ -73,30 +87,36 @@
         </div>
 
 
-        <!-- Student Records -->
+        <!-- Records Container -->
         <div class="records-container">
 
-            <h2>Student Records</h2>
+            <h2>Lost Items</h2>
 
             <table>
 
                 <thead>
                     <tr>
-                        <th>Student ID</th>
-                        <th>Name</th>
-                        <th>Program</th>
+                        <th>Item</th>
+                        <th>Name of Finder</th>
+                        <th>Contact Info</th>
+                        <th>Image</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
 
-                <tbody id="studentTableBody">
-                    <!-- Student records will be displayed here -->
+                <tbody id="itemTableBody">
+                    <!-- Item records will be displayed here -->
                 </tbody>
 
             </table>
 
         </div>
 
+    </div>
+
+    <!-- Full Size Image Modal Popup -->
+    <div id="imageModal" class="image-modal" onclick="closeImageModal()">
+        <img id="modalImg" src="" alt="Full Size Preview">
     </div>
 
     <script src="script.js"></script>

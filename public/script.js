@@ -1,13 +1,14 @@
-const API_URL = "/api/students";
+const API_URL = "/api/Items";
 
-const studentForm = document.getElementById("studentForm");
-const studentMongoId = document.getElementById("studentMongoId");
+const itemForm = document.getElementById("itemForm");
+const itemMongoId = document.getElementById("itemMongoId");
 
-const studentIdInput = document.getElementById("studentId");
+const itemInput = document.getElementById("itemname");
 const nameInput = document.getElementById("name");
-const programInput = document.getElementById("program");
+const contactInput = document.getElementById("contact");
+const imageInput = document.getElementById("image");
 
-const studentTableBody = document.getElementById("studentTableBody");
+const itemTableBody = document.getElementById("itemTableBody");
 
 const submitButton = document.getElementById("submitButton");
 const cancelButton = document.getElementById("cancelButton");
@@ -15,81 +16,110 @@ const cancelButton = document.getElementById("cancelButton");
 const formTitle = document.getElementById("formTitle");
 const message = document.getElementById("message");
 
-// LOAD STUDENTS
-async function loadStudents() {
+// Keep track of existing image URL when editing
+let currentImageBase64 = "";
+
+// LOAD ITEMS
+async function loadItems() {
     try {
         const response = await fetch(API_URL);
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `HTTP ${response.status}: Failed to fetch students.`);
+            throw new Error(errorData.message || `HTTP ${response.status}: Failed to fetch Items.`);
         }
 
-        const students = await response.json();
+        const items = await response.json();
 
-        studentTableBody.innerHTML = "";
+        itemTableBody.innerHTML = "";
 
-        if (!Array.isArray(students) || students.length === 0) {
-            studentTableBody.innerHTML = "<tr><td colspan='4'>No student records found.</td></tr>";
+        if (!Array.isArray(items) || items.length === 0) {
+            itemTableBody.innerHTML = "<tr><td colspan='5'>No item records found.</td></tr>";
             return;
         }
 
-        students.forEach(student => {
+        items.forEach(item => {
             const row = document.createElement("tr");
 
             row.innerHTML = `
-                <td>${student.studentId || "N/A"}</td>
-                <td>${student.name || "N/A"}</td>
-                <td>${student.program || "N/A"}</td>
+                <td>${item.itemname || "N/A"}</td>
+                <td>${item.name || "N/A"}</td>
+                <td>${item.contact || "N/A"}</td>
+                <td>
+                    ${item.image 
+                        ? `<img src="${item.image}" alt="Item Image" style="max-width: 120px; max-height: 120px; width: auto; height: auto; object-fit: contain; border-radius: 4px; display: block; cursor: pointer;" onclick="openImageModal('${item.image}')" title="Click to view full size">` 
+                        : "No Image"
+                    }
+                </td>
                 <td>
                     <button
+                        type="button"
                         class="edit-button"
-                        onclick="editStudent('${student._id}')">
+                        onclick="editItem('${item._id}')">
                         Edit
                     </button>
                     <button
+                        type="button"
                         class="delete-button"
-                        onclick="deleteStudent('${student._id}')">
+                        onclick="deleteItem('${item._id}')">
                         Delete
                     </button>
                 </td>
             `;
 
-            studentTableBody.appendChild(row);
+            itemTableBody.appendChild(row);
         });
 
     } catch (error) {
         showMessage(
-            error.message || "Unable to load student records.",
+            error.message || "Unable to load item records.",
             true
         );
-        console.error("loadStudents Error:", error);
+        console.error("loadItems Error:", error);
     }
 }
 
-// ADD / UPDATE STUDENT
-studentForm.addEventListener("submit", async function (event) {
+// HELPER: Convert file to Base64
+function convertFileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+// ADD / UPDATE ITEM
+itemForm.addEventListener("submit", async function (event) {
     event.preventDefault();
 
-    const studentData = {
-        studentId: studentIdInput.value.trim(),
-        name: nameInput.value.trim(),
-        program: programInput.value.trim()
-    };
-
     try {
+        let imageString = currentImageBase64;
+
+        // If a new file is chosen, convert it to Base64
+        if (imageInput.files && imageInput.files[0]) {
+            imageString = await convertFileToBase64(imageInput.files[0]);
+        }
+
+        const itemData = {
+            itemname: itemInput.value.trim(),
+            name: nameInput.value.trim(),
+            contact: contactInput.value.trim(),
+            image: imageString
+        };
+
         let response;
 
         // UPDATE
-        if (studentMongoId.value) {
+        if (itemMongoId.value) {
             response = await fetch(
-                `${API_URL}/${studentMongoId.value}`,
+                `${API_URL}/${itemMongoId.value}`,
                 {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(studentData)
+                    body: JSON.stringify(itemData)
                 }
             );
         }
@@ -102,7 +132,7 @@ studentForm.addEventListener("submit", async function (event) {
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify(studentData)
+                    body: JSON.stringify(itemData)
                 }
             );
         }
@@ -115,14 +145,14 @@ studentForm.addEventListener("submit", async function (event) {
             );
         }
 
-        if (studentMongoId.value) {
-            showMessage("Student updated successfully.");
+        if (itemMongoId.value) {
+            showMessage("Item updated successfully.");
         } else {
-            showMessage("Student added successfully.");
+            showMessage("Item added successfully.");
         }
 
         resetForm();
-        loadStudents();
+        loadItems();
 
     } catch (error) {
         showMessage(
@@ -133,25 +163,30 @@ studentForm.addEventListener("submit", async function (event) {
     }
 });
 
-// EDIT STUDENT
-async function editStudent(id) {
+// EDIT ITEM
+async function editItem(id) {
     try {
         const response = await fetch(`${API_URL}/${id}`);
-        const student = await response.json();
+        const item = await response.json();
 
         if (!response.ok) {
             throw new Error(
-                student.message || "Student not found."
+                item.message || "Item not found."
             );
         }
 
-        studentMongoId.value = student._id;
-        studentIdInput.value = student.studentId || "";
-        nameInput.value = student.name || "";
-        programInput.value = student.program || "";
+        itemMongoId.value = item._id;
+        itemInput.value = item.itemname || "";
+        nameInput.value = item.name || "";
+        contactInput.value = item.contact || "";
+        
+        // Save existing image string in case user doesn't pick a new file on edit
+        currentImageBase64 = item.image || "";
+        // Note: File inputs can't be programmatically set for security reasons, 
+        // but currentImageBase64 ensures the old image isn't lost if left unchanged.
 
-        formTitle.textContent = "Edit Student";
-        submitButton.textContent = "Update Student";
+        formTitle.textContent = "Edit Item";
+        submitButton.textContent = "Update Item";
         cancelButton.style.display = "inline-block";
 
         window.scrollTo({
@@ -168,9 +203,9 @@ async function editStudent(id) {
     }
 }
 
-// DELETE STUDENT
-async function deleteStudent(id) {
-    const confirmed = confirm("Are you sure you want to delete this student?");
+// DELETE ITEM
+async function deleteItem(id) {
+    const confirmed = confirm("Are you sure you want to delete this item?");
 
     if (!confirmed) {
         return;
@@ -188,12 +223,12 @@ async function deleteStudent(id) {
 
         if (!response.ok) {
             throw new Error(
-                result.message || "Unable to delete student."
+                result.message || "Unable to delete item."
             );
         }
 
-        showMessage("Student deleted successfully.");
-        loadStudents();
+        showMessage("Item deleted successfully.");
+        loadItems();
 
     } catch (error) {
         showMessage(
@@ -211,10 +246,11 @@ cancelButton.addEventListener("click", function () {
 
 // RESET FORM
 function resetForm() {
-    studentForm.reset();
-    studentMongoId.value = "";
-    formTitle.textContent = "Add Student";
-    submitButton.textContent = "Add Student";
+    itemForm.reset();
+    itemMongoId.value = "";
+    currentImageBase64 = "";
+    formTitle.textContent = "Post Items";
+    submitButton.textContent = "Submit";
     cancelButton.style.display = "none";
 }
 
@@ -233,5 +269,23 @@ function showMessage(text, isError = false) {
     }, 3000);
 }
 
+// OPEN IMAGE MODAL POPUP
+function openImageModal(imageSrc) {
+    const modal = document.getElementById("imageModal");
+    const modalImg = document.getElementById("modalImg");
+    if (modal && modalImg) {
+        modalImg.src = imageSrc;
+        modal.style.display = "flex";
+    }
+}
+
+// CLOSE IMAGE MODAL POPUP
+function closeImageModal() {
+    const modal = document.getElementById("imageModal");
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
 // INITIAL LOAD
-loadStudents();
+loadItems();
